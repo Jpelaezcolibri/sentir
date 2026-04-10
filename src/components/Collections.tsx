@@ -242,6 +242,9 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
     ? product.images
     : (product.image && product.image !== PLACEHOLDER ? [product.image] : []);
   const [activeIdx, setActiveIdx] = useState(0);
+  const { addItem, openCart } = useCart();
+  const [pickedSize, setPickedSize] = useState<string | null>(null);
+  const [pickedColor, setPickedColor] = useState<string | null>(null);
 
   const colorOptions = (() => {
     if (!product.colors) return [];
@@ -258,6 +261,24 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
       return !norm.includes("segun disponibilidad");
     });
   })();
+
+  const needsColor = colorOptions.length > 1;
+
+  const handleAddToCart = () => {
+    if (!pickedSize) return;
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      size: pickedSize,
+      color: pickedColor || (colorOptions.length === 1 ? colorOptions[0] : undefined),
+      collectionName,
+      isEntregaInmediata: product.isEntregaInmediata,
+    });
+    openCart();
+    onClose();
+  };
 
   return (
     <motion.div
@@ -371,18 +392,65 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
 
             {product.sizes.length > 0 && (
               <div>
-                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide block mb-2">Tallas disponibles</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {product.sizes.map((size) => (
-                    <span key={size} className="px-3 py-1.5 text-xs font-bold rounded-lg bg-cream text-brown-dark border border-cream-dark">
-                      {size}
+                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide block mb-2">
+                  {pickedSize ? `${pickedSize} — ${needsColor ? "Elige color" : "Confirmado"}` : "Elige tu talla"}
+                </span>
+                {!pickedSize ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {product.sizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => {
+                          setPickedSize(size);
+                          if (!needsColor) setPickedColor(null);
+                        }}
+                        className="px-3 py-1.5 text-xs font-bold rounded-lg bg-cream hover:bg-primary hover:text-white text-brown-dark border border-cream-dark hover:border-primary transition-all"
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1.5 text-xs font-bold rounded-lg bg-primary text-white">
+                      {pickedSize}
                     </span>
+                    <button
+                      onClick={() => {
+                        setPickedSize(null);
+                        setPickedColor(null);
+                      }}
+                      className="text-[10px] text-primary hover:underline"
+                    >
+                      Cambiar
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {pickedSize && colorOptions.length > 0 && (
+              <div>
+                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide block mb-2">Colores</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {colorOptions.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setPickedColor(color)}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                        pickedColor === color
+                          ? "bg-primary text-white border-primary"
+                          : "bg-cream text-brown-dark border border-cream-dark hover:bg-primary/10"
+                      }`}
+                    >
+                      {color}
+                    </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {colorOptions.length > 0 && (
+            {!pickedSize && colorOptions.length > 0 && (
               <div>
                 <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide block mb-2">Colores</span>
                 <p className="text-sm text-accent">{colorOptions.join(" · ")}</p>
@@ -390,16 +458,28 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
             )}
 
             <div className="flex flex-col gap-2.5 mt-auto pt-3 border-t border-cream-dark">
-              <AddToCartButton product={product} collectionName={collectionName} />
-              <a
-                href={getWhatsAppLink(whatsappNumber, `Hola! Me interesa el producto *"${product.name}"* de la colección ${collectionName}. Precio: ${formatPrice(product.price)}. ¿Está disponible?`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 justify-center bg-[#25D366] text-white px-4 py-2.5 rounded-full font-semibold text-sm hover:bg-[#20BD5A] transition-colors"
-              >
-                <MessageCircle size={16} />
-                Consultar por WhatsApp
-              </a>
+              {pickedSize ? (
+                <>
+                  <button
+                    onClick={handleAddToCart}
+                    className="flex items-center gap-1.5 justify-center bg-primary hover:bg-primary-dark text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-colors"
+                  >
+                    <ShoppingBag size={16} />
+                    Agregar al carrito
+                  </button>
+                  <a
+                    href={getWhatsAppLink(whatsappNumber, `Hola! Me interesa el producto *"${product.name}"* de la colección ${collectionName}. Opción: ${pickedSize}${pickedColor ? ` / ${pickedColor}` : ''}. Precio: ${formatPrice(product.price)}. ¿Está disponible?`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 justify-center bg-[#25D366] text-white px-4 py-2.5 rounded-full font-semibold text-sm hover:bg-[#20BD5A] transition-colors"
+                  >
+                    <MessageCircle size={16} />
+                    Consultar por WhatsApp
+                  </a>
+                </>
+              ) : (
+                <p className="text-xs text-accent text-center py-2">Selecciona una talla para continuar</p>
+              )}
             </div>
           </div>
         </div>
@@ -438,7 +518,7 @@ function CollectionModal({ collection, whatsappNumber, onClose }: { collection: 
               <div>
                 <h3 className="text-lg sm:text-2xl font-bold text-brown-dark">{collection.name}</h3>
                 <p className="text-xs sm:text-sm text-accent">
-                  {collection.products.length} productos · {collection.priceRange}
+                  {collection.products.length} productos
                 </p>
               </div>
             </div>
@@ -586,8 +666,7 @@ function CollectionCard({ collection, onClick, index }: { collection: Collection
         </div>
         <h3 className="text-lg sm:text-xl font-bold text-white mb-1">{collection.name}</h3>
         <p className="text-white/65 text-xs line-clamp-2 font-light mb-3">{collection.shortDescription}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-primary-light font-bold text-sm">{collection.priceRange}</span>
+        <div className="flex items-center justify-end">
           <span className="text-white/70 text-xs flex items-center gap-1 group-hover:text-white transition-colors">
             Ver más <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
           </span>
