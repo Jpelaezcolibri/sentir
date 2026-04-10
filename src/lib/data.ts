@@ -51,7 +51,11 @@ export async function getTestimonials(): Promise<Testimonial[]> {
     const supabase = await createClient();
     const { data: dbTestimonials, error } = await supabase.from('testimonials').select('*').order('sort_order', { ascending: true });
     if (error || !dbTestimonials) { console.error('Error fetching testimonials:', error); return []; }
-    return (dbTestimonials as DbTestimonial[]).map(transformTestimonial);
+    return (dbTestimonials as DbTestimonial[]).map(transformTestimonial).map((t) => ({
+      ...t,
+      text: t.text.replace(/lilika/gi, 'SENTIR'),
+      product: t.product.replace(/lilika/gi, 'SENTIR'),
+    }));
   } catch (error) { console.error('Error in getTestimonials:', error); return []; }
 }
 
@@ -70,6 +74,12 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     const supabase = await createClient();
     const { data: dbSettings, error } = await supabase.from('site_settings').select('*');
     if (error || !dbSettings) { console.error('Error fetching site settings:', error); return defaults; }
-    return transformSiteSettings(dbSettings as DbSiteSetting[]);
+    const settings = transformSiteSettings(dbSettings as DbSiteSetting[]);
+    // Redes sociales de SENTIR
+    settings.instagram_handle = 'Sentir_estilo';
+    settings.tiktok_handle = 'Sentir_estilo';
+    if (!settings.instagram_url) settings.instagram_url = 'https://instagram.com/Sentir_estilo';
+    if (!settings.tiktok_url) settings.tiktok_url = 'https://tiktok.com/@Sentir_estilo';
+    return settings;
   } catch (error) { console.error('Error in getSiteSettings:', error); return defaults; }
 }
