@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+:root {
+  /* SENTIR — Paleta Teal/Mint inspirada en el logo */
+  --background: #F4FAFA;
+  --foreground: #1A3835;
+  --primary: #4AADA3;
+  --primary-light: #8ED4CF;
+  --primary-dark: #2E8077;
+  --secondary: #7EC8A0;
+  --secondary-light: #B5E0CA;
+  --accent: #5E9E95;
+  --cream: #F4FAFA;
+  --cream-dark: #E2F0EE;
+  --gold: #7EC8A0;
+  --gold-light: #B5E0CA;
+  --rose: #4AADA3;
+  --rose-light: #C8E9E6;
+  --brown: #5E9E95;
+  --brown-dark: #1A3835;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
+  --color-secondary: var(--secondary);
+  --color-secondary-light: var(--secondary-light);
+  --color-accent: var(--accent);
+  --color-cream: var(--cream);
+  --color-cream-dark: var(--cream-dark);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-rose: var(--rose);
+  --color-rose-light: var(--rose-light);
+  --color-brown: var(--brown);
+  --color-brown-dark: var(--brown-dark);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--background, #F4FAFA);
+  color: var(--foreground, #1A3835);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--cream-dark); }
+::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes wa-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+  70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(74,173,163,0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+.animate-shake { animation: shake 0.5s ease-in-out; }
+.wa-pulse { animation: wa-pulse 2s infinite; }
+
+.glass {
+  background: rgba(244, 250, 250, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(74, 173, 163, 0.15);
+}
+
+.product-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(74, 173, 163, 0.15);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen { min-height: -webkit-fill-available; }
+}
+
+@supports not (backdrop-filter: blur(12px)) {
+  .glass { background: rgba(244, 250, 250, 0.97); }
+}
+
+.fixed { -webkit-tap-highlight-color: transparent; }
+
+input, select, textarea { font-size: 16px; }
+
+.overflow-y-auto, .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
