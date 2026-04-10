@@ -2,6 +2,36 @@ import { createClient } from '@/lib/supabase/server';
 import type { Product, Collection, QuizOption, Testimonial, Bundle, SiteSettings, DbCollection, DbProductWithImages, DbQuizOption, DbTestimonial, DbBundle, DbSiteSetting } from '@/types';
 import { transformCollection, transformProduct, transformQuizOption, transformTestimonial, transformBundle, transformSiteSettings } from '@/types';
 
+/** Reemplaza cualquier mención a "lilika" (case-insensitive) por "SENTIR" en strings */
+function sanitize(text: string | null | undefined): string {
+  if (!text) return text as string;
+  return text.replace(/lilika(\s+kids)?/gi, 'SENTIR');
+}
+
+function sanitizeProduct(p: Product): Product {
+  return {
+    ...p,
+    name: sanitize(p.name),
+    story: sanitize(p.story),
+    fabric: sanitize(p.fabric),
+    colors: sanitize(p.colors),
+    catalog: sanitize(p.catalog),
+    tags: p.tags.map(sanitize),
+  };
+}
+
+function sanitizeCollection(c: Collection): Collection {
+  return {
+    ...c,
+    name: sanitize(c.name),
+    description: sanitize(c.description),
+    shortDescription: sanitize(c.shortDescription),
+    story: sanitize(c.story),
+    priceRange: sanitize(c.priceRange),
+    products: c.products.map(sanitizeProduct),
+  };
+}
+
 export async function getCollectionsWithProducts(): Promise<Collection[]> {
   try {
     const supabase = await createClient();
@@ -20,7 +50,7 @@ export async function getCollectionsWithProducts(): Promise<Collection[]> {
       const collectionProducts = (dbProducts as DbProductWithImages[])
         .filter((p) => p.collection_id === dbCol.id)
         .map((p) => transformProduct(p, appUrl));
-      return transformCollection(dbCol, collectionProducts);
+      return sanitizeCollection(transformCollection(dbCol, collectionProducts));
     });
   } catch (error) { console.error('Error in getCollectionsWithProducts:', error); return []; }
 }
@@ -33,7 +63,7 @@ export async function getEntregaInmediataProducts(): Promise<Product[]> {
     if (error || !dbProducts) { console.error('Error fetching entrega inmediata:', error); return []; }
     const { data: appUrlSetting } = await supabase.from('site_settings').select('value').eq('key', 'app_url').single();
     const appUrl = appUrlSetting?.value || 'https://sentir.vercel.app';
-    return (dbProducts as DbProductWithImages[]).map((p) => transformProduct(p, appUrl));
+    return (dbProducts as DbProductWithImages[]).map((p) => sanitizeProduct(transformProduct(p, appUrl)));
   } catch (error) { console.error('Error in getEntregaInmediataProducts:', error); return []; }
 }
 
@@ -42,7 +72,7 @@ export async function getQuizOptions(): Promise<QuizOption[]> {
     const supabase = await createClient();
     const { data: dbOptions, error } = await supabase.from('quiz_options').select('*').order('sort_order', { ascending: true });
     if (error || !dbOptions) { console.error('Error fetching quiz options:', error); return []; }
-    return (dbOptions as DbQuizOption[]).map(transformQuizOption);
+    return (dbOptions as DbQuizOption[]).map(transformQuizOption).map((q) => ({ ...q, label: sanitize(q.label) }));
   } catch (error) { console.error('Error in getQuizOptions:', error); return []; }
 }
 
@@ -53,8 +83,9 @@ export async function getTestimonials(): Promise<Testimonial[]> {
     if (error || !dbTestimonials) { console.error('Error fetching testimonials:', error); return []; }
     return (dbTestimonials as DbTestimonial[]).map(transformTestimonial).map((t) => ({
       ...t,
-      text: t.text.replace(/lilika/gi, 'SENTIR'),
-      product: t.product.replace(/lilika/gi, 'SENTIR'),
+      text: sanitize(t.text),
+      product: sanitize(t.product),
+      name: sanitize(t.name),
     }));
   } catch (error) { console.error('Error in getTestimonials:', error); return []; }
 }
@@ -64,7 +95,12 @@ export async function getBundles(): Promise<Bundle[]> {
     const supabase = await createClient();
     const { data: dbBundles, error } = await supabase.from('bundles').select('*').order('sort_order', { ascending: true });
     if (error || !dbBundles) { console.error('Error fetching bundles:', error); return []; }
-    return (dbBundles as DbBundle[]).map(transformBundle);
+    return (dbBundles as DbBundle[]).map(transformBundle).map((b) => ({
+      ...b,
+      name: sanitize(b.name),
+      description: sanitize(b.description),
+      items: b.items.map(sanitize),
+    }));
   } catch (error) { console.error('Error in getBundles:', error); return []; }
 }
 

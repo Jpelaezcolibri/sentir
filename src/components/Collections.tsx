@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice, getWhatsAppLink } from "@/lib/utils";
 import type { Collection, Product } from "@/types";
-import { X, MessageCircle, ChevronRight, Check, ShoppingBag, Zap } from "lucide-react";
+import { X, MessageCircle, ChevronRight, Check, ShoppingBag, Zap, Eye, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
 import SafeImage from "@/components/SafeImage";
 import { useCart } from "@/context/CartContext";
 
@@ -177,15 +177,23 @@ function AddToCartButton({ product, collectionName }: { product: Product; collec
 
 // ─── Product Card (inside modal) ─────────────────────────────────────────────
 
-function ProductCard({ product, collectionName, index }: { product: Product; collectionName: string; index: number }) {
+function ProductCard({ product, collectionName, index, onQuickView }: {
+  product: Product;
+  collectionName: string;
+  index: number;
+  onQuickView: (product: Product) => void;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="product-card bg-white rounded-2xl overflow-hidden group"
+      className="product-card bg-white rounded-2xl overflow-hidden group cursor-pointer"
     >
-      <div className="relative aspect-square bg-cream-dark overflow-hidden">
+      <div
+        className="relative aspect-square bg-cream-dark overflow-hidden"
+        onClick={() => onQuickView(product)}
+      >
         {product.image && product.image !== PLACEHOLDER ? (
           <SafeImage
             src={product.image}
@@ -201,6 +209,12 @@ function ProductCard({ product, collectionName, index }: { product: Product; col
           </div>
         )}
         <ProductBadges product={product} />
+        {/* Quick view overlay */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center">
+          <span className="opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 bg-white text-brown-dark text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
+            <Eye size={12} /> Ver detalle
+          </span>
+        </div>
       </div>
       <div className="p-2.5 sm:p-3">
         <h4 className="font-semibold text-brown-dark text-xs sm:text-sm truncate">{product.name}</h4>
@@ -216,73 +230,274 @@ function ProductCard({ product, collectionName, index }: { product: Product; col
   );
 }
 
-// ─── Collection Modal ─────────────────────────────────────────────────────────
+// ─── Product Quick View ───────────────────────────────────────────────────────
 
-function CollectionModal({ collection, whatsappNumber, onClose }: { collection: Collection; whatsappNumber: string; onClose: () => void }) {
+function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: {
+  product: Product;
+  collectionName: string;
+  whatsappNumber: string;
+  onClose: () => void;
+}) {
+  const images = (product.images && product.images.length > 0)
+    ? product.images
+    : (product.image && product.image !== PLACEHOLDER ? [product.image] : []);
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  const colorOptions = (() => {
+    if (!product.colors) return [];
+    const trimmed = product.colors.trim();
+    let raw: string[] = [];
+    if (trimmed.startsWith("[")) {
+      try { raw = JSON.parse(trimmed); } catch { raw = [trimmed]; }
+    } else {
+      raw = trimmed.split(",").map((c) => c.trim());
+    }
+    return raw.filter((c) => {
+      if (!c) return false;
+      const norm = c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z ]/g, "").trim();
+      return !norm.includes("segun disponibilidad");
+    });
+  })();
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] flex items-end md:items-center justify-center"
+      className="fixed inset-0 z-[70] flex items-end md:items-center justify-center"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 25 }}
+        transition={{ type: "spring", damping: 26, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-cream rounded-t-3xl md:rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-t-3xl md:rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl"
       >
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-cream/90 backdrop-blur-md p-4 sm:p-6 border-b border-cream-dark flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl sm:text-3xl">{collection.icon}</span>
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-cream-dark transition-colors"
+        >
+          <X size={18} className="text-brown-dark" />
+        </button>
+
+        <div className="md:flex">
+          {/* Images */}
+          <div className="md:w-[48%] flex-shrink-0">
+            {images.length > 0 ? (
+              <>
+                <div className="relative aspect-square bg-cream-dark overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeIdx}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute inset-0"
+                    >
+                      <SafeImage
+                        src={images[activeIdx]}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        fallbackIconSize={48}
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+                  <ProductBadges product={product} />
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setActiveIdx((i) => (i - 1 + images.length) % images.length)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 rounded-full shadow hover:bg-white transition-colors"
+                      >
+                        <ChevronLeft size={16} className="text-brown-dark" />
+                      </button>
+                      <button
+                        onClick={() => setActiveIdx((i) => (i + 1) % images.length)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 rounded-full shadow hover:bg-white transition-colors"
+                      >
+                        <ChevronRightIcon size={16} className="text-brown-dark" />
+                      </button>
+                    </>
+                  )}
+                </div>
+                {images.length > 1 && (
+                  <div className="flex gap-2 p-3 overflow-x-auto">
+                    {images.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveIdx(i)}
+                        className={`relative flex-shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all ${
+                          i === activeIdx ? "border-primary shadow-md" : "border-transparent opacity-50 hover:opacity-80"
+                        }`}
+                      >
+                        <SafeImage src={img} alt={`Vista ${i + 1}`} fill className="object-cover" sizes="56px" fallbackIconSize={16} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="aspect-square bg-cream-dark rounded-t-3xl md:rounded-l-3xl flex items-center justify-center">
+                <ShoppingBag size={48} className="text-accent/20" />
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="md:w-[52%] p-5 md:p-6 flex flex-col gap-3">
             <div>
-              <h3 className="text-lg sm:text-2xl font-bold text-brown-dark">{collection.name}</h3>
-              <p className="text-xs sm:text-sm text-accent">
-                {collection.products.length} productos · {collection.priceRange}
-              </p>
+              <span className="text-[10px] text-primary font-bold uppercase tracking-[0.2em]">{collectionName}</span>
+              <h2 className="text-xl md:text-2xl font-bold text-brown-dark mt-1 leading-tight">{product.name}</h2>
+              <p className="text-2xl font-bold text-primary mt-2">{formatPrice(product.price)}</p>
+            </div>
+
+            {product.story && (
+              <p className="text-sm text-accent leading-relaxed border-t border-cream-dark pt-3">{product.story}</p>
+            )}
+
+            {product.fabric && (
+              <div>
+                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide">Material</span>
+                <p className="text-sm text-accent mt-0.5">{product.fabric}</p>
+              </div>
+            )}
+
+            {product.sizes.length > 0 && (
+              <div>
+                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide block mb-2">Tallas disponibles</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {product.sizes.map((size) => (
+                    <span key={size} className="px-3 py-1.5 text-xs font-bold rounded-lg bg-cream text-brown-dark border border-cream-dark">
+                      {size}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {colorOptions.length > 0 && (
+              <div>
+                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide block mb-2">Colores</span>
+                <p className="text-sm text-accent">{colorOptions.join(" · ")}</p>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2.5 mt-auto pt-3 border-t border-cream-dark">
+              <AddToCartButton product={product} collectionName={collectionName} />
+              <a
+                href={getWhatsAppLink(whatsappNumber, `Hola! Me interesa el producto *"${product.name}"* de la colección ${collectionName}. Precio: ${formatPrice(product.price)}. ¿Está disponible?`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 justify-center bg-[#25D366] text-white px-4 py-2.5 rounded-full font-semibold text-sm hover:bg-[#20BD5A] transition-colors"
+              >
+                <MessageCircle size={16} />
+                Consultar por WhatsApp
+              </a>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 bg-white rounded-full hover:bg-cream-dark transition-colors">
-            <X size={20} className="text-brown-dark" />
-          </button>
-        </div>
-
-
-        {/* Description */}
-        <div className="px-4 sm:px-6 py-4">
-          <p className="text-accent text-sm sm:text-base">{collection.description}</p>
-          {collection.story && (
-            <p className="text-xs sm:text-sm text-primary/80 mt-2 italic">{collection.story}</p>
-          )}
-        </div>
-
-        {/* Products grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-6 pt-2">
-          {collection.products.map((product, index) => (
-            <ProductCard key={product.id} product={product} collectionName={collection.name} index={index} />
-          ))}
-        </div>
-
-        {/* Footer CTA */}
-        <div className="sticky bottom-0 bg-cream/90 backdrop-blur-md p-3 sm:p-4 border-t border-cream-dark flex flex-col sm:flex-row gap-3 justify-center items-center">
-          <a
-            href={getWhatsAppLink(whatsappNumber, `Hola! Me interesa la colección "${collection.name}". Quiero más información.`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-[#25D366] text-white px-5 sm:px-6 py-3 rounded-full font-semibold hover:bg-[#20BD5A] transition-colors text-sm sm:text-base w-full sm:w-auto justify-center"
-          >
-            <MessageCircle size={18} />
-            Consultar por esta colección
-          </a>
-          <span className="text-xs sm:text-sm text-accent">Respuesta en menos de 5 minutos</span>
         </div>
       </motion.div>
     </motion.div>
+  );
+}
+
+// ─── Collection Modal ─────────────────────────────────────────────────────────
+
+function CollectionModal({ collection, whatsappNumber, onClose }: { collection: Collection; whatsappNumber: string; onClose: () => void }) {
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[60] flex items-end md:items-center justify-center"
+        onClick={onClose}
+      >
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <motion.div
+          initial={{ y: "100%" }}
+          animate={{ y: 0 }}
+          exit={{ y: "100%" }}
+          transition={{ type: "spring", damping: 25 }}
+          onClick={(e) => e.stopPropagation()}
+          className="relative bg-cream rounded-t-3xl md:rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto"
+        >
+          {/* Header */}
+          <div className="sticky top-0 z-10 bg-cream/90 backdrop-blur-md p-4 sm:p-6 border-b border-cream-dark flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl sm:text-3xl">{collection.icon}</span>
+              <div>
+                <h3 className="text-lg sm:text-2xl font-bold text-brown-dark">{collection.name}</h3>
+                <p className="text-xs sm:text-sm text-accent">
+                  {collection.products.length} productos · {collection.priceRange}
+                </p>
+              </div>
+            </div>
+            <button onClick={onClose} className="p-2 bg-white rounded-full hover:bg-cream-dark transition-colors">
+              <X size={20} className="text-brown-dark" />
+            </button>
+          </div>
+
+          {/* Description */}
+          <div className="px-4 sm:px-6 py-4">
+            <p className="text-accent text-sm sm:text-base">{collection.description}</p>
+            {collection.story && (
+              <p className="text-xs sm:text-sm text-primary/80 mt-2 italic">{collection.story}</p>
+            )}
+            <p className="text-[10px] text-accent/60 mt-3 flex items-center gap-1">
+              <Eye size={11} /> Toca una foto para ver el detalle del producto
+            </p>
+          </div>
+
+          {/* Products grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-6 pt-2">
+            {collection.products.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                collectionName={collection.name}
+                index={index}
+                onQuickView={setQuickViewProduct}
+              />
+            ))}
+          </div>
+
+          {/* Footer CTA */}
+          <div className="sticky bottom-0 bg-cream/90 backdrop-blur-md p-3 sm:p-4 border-t border-cream-dark flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <a
+              href={getWhatsAppLink(whatsappNumber, `Hola! Me interesa la colección "${collection.name}". Quiero más información.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-[#25D366] text-white px-5 sm:px-6 py-3 rounded-full font-semibold hover:bg-[#20BD5A] transition-colors text-sm sm:text-base w-full sm:w-auto justify-center"
+            >
+              <MessageCircle size={18} />
+              Consultar por esta colección
+            </a>
+            <span className="text-xs sm:text-sm text-accent">Respuesta en menos de 5 minutos</span>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      <AnimatePresence>
+        {quickViewProduct && (
+          <ProductQuickView
+            product={quickViewProduct}
+            collectionName={collection.name}
+            whatsappNumber={whatsappNumber}
+            onClose={() => setQuickViewProduct(null)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

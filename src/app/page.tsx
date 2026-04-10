@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { getCollectionsWithProducts, getQuizOptions, getTestimonials, getBundles, getSiteSettings, getEntregaInmediataProducts } from '@/lib/data';
 import Navigation from "@/components/Navigation";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import Hero from "@/components/Hero";
 import BrandStory from "@/components/BrandStory";
 import Collections from "@/components/Collections";
@@ -26,7 +27,8 @@ export default async function Home() {
 
   return (
     <main>
-      <Navigation collections={collections} />
+      <AnnouncementBar />
+      <Navigation collections={collections} whatsappNumber={settings.whatsapp_number} />
       <CartDrawer whatsappNumber={settings.whatsapp_number} />
 
       {/* 1. Hero — bienvenida emocional */}
