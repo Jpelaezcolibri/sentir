@@ -13,16 +13,23 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://sentir.vercel.app"),
+  metadataBase: new URL("https://sentir-nine.vercel.app"),
   title: "SENTIR | Catálogo",
   description: "Descubre nuestra colección. Encuentra el producto ideal para ti.",
   openGraph: {
-    title: "SENTIR",
-    description: "Descubre nuestra colección.",
+    title: "SENTIR — Cada producto, una experiencia",
+    description: "Descubre nuestra colección exclusiva. Compra fácil por WhatsApp.",
     type: "website",
     siteName: "SENTIR",
-    url: "https://sentir.vercel.app",
+    url: "https://sentir-nine.vercel.app",
     locale: "es_CO",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "SENTIR" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SENTIR — Cada producto, una experiencia",
+    description: "Descubre nuestra colección exclusiva. Compra fácil por WhatsApp.",
+    images: ["/opengraph-image"],
   },
 };
 
