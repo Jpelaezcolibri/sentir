@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronDown, ShoppingBag, MessageCircle, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronDown, ShoppingBag, ChevronRight, Sparkles } from "lucide-react";
 
-export default function Hero() {
+export default function Hero({ whatsappNumber }: { whatsappNumber: string }) {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-[#3D9E8C] via-[#4AADA3] to-[#7EC8A0]">
       {/* Organic blob shapes */}
@@ -56,21 +56,6 @@ export default function Hero() {
               </a>
             </div>
 
-            {/* Flow hint */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-6 py-3"
-            >
-              <span className="flex items-center gap-1.5 text-sm font-semibold text-white">
-                <ShoppingBag size={14} /> Agrega al carrito
-              </span>
-              <ChevronRight size={11} className="text-white/50" />
-              <span className="flex items-center gap-1.5 text-sm font-semibold text-white">
-                <MessageCircle size={14} /> Confirma por WhatsApp
-              </span>
-            </motion.div>
           </motion.div>
         </div>
 

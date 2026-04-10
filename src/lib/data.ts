@@ -78,8 +78,8 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     // Redes sociales de SENTIR
     settings.instagram_handle = 'Sentir_estilo';
     settings.tiktok_handle = 'Sentir_estilo';
-    if (!settings.instagram_url) settings.instagram_url = 'https://instagram.com/Sentir_estilo';
-    if (!settings.tiktok_url) settings.tiktok_url = 'https://tiktok.com/@Sentir_estilo';
+    settings.instagram_url = 'https://instagram.com/Sentir_estilo';
+    settings.tiktok_url = 'https://tiktok.com/@Sentir_estilo';
     return settings;
   } catch (error) { console.error('Error in getSiteSettings:', error); return defaults; }
 }

@@ -30,7 +30,7 @@ export default async function Home() {
       <CartDrawer whatsappNumber={settings.whatsapp_number} />
 
       {/* 1. Hero — bienvenida emocional */}
-      <Hero />
+      <Hero whatsappNumber={settings.whatsapp_number} />
 
       {/* 2. Historia de marca — por qué existe SENTIR */}
       <BrandStory />
