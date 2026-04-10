@@ -252,16 +252,6 @@ function CollectionModal({ collection, whatsappNumber, onClose }: { collection: 
           </button>
         </div>
 
-        {/* Flow hint */}
-        <div className="mx-4 sm:mx-6 mt-3 flex items-center justify-center gap-2 sm:gap-3 bg-primary/5 border border-primary/15 rounded-full px-4 py-2">
-          <span className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-primary">
-            <ShoppingBag size={13} /> Agrega al carrito
-          </span>
-          <ChevronRight size={11} className="text-primary/40" />
-          <span className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-[#25D366]">
-            <MessageCircle size={13} /> Confirma por WhatsApp
-          </span>
-        </div>
 
         {/* Description */}
         <div className="px-4 sm:px-6 py-4">
@@ -428,15 +418,6 @@ export default function Collections({ collections, whatsappNumber }: { collectio
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-brown-dark mt-3 leading-tight">
               Descubre tu <span className="gradient-text">colección</span>
             </h2>
-          </div>
-          <div className="flex items-center gap-2 bg-primary/8 border border-primary/15 rounded-full px-5 py-2.5 self-start sm:self-auto flex-shrink-0">
-            <span className="flex items-center gap-1 text-xs font-semibold text-primary">
-              <ShoppingBag size={13} /> Agrega al carrito
-            </span>
-            <ChevronRight size={11} className="text-primary/40" />
-            <span className="flex items-center gap-1 text-xs font-semibold text-[#25D366]">
-              <MessageCircle size={13} /> Confirma por WhatsApp
-            </span>
           </div>
         </motion.div>
 

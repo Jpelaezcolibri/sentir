@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ArrowLeft, MessageCircle, Sparkles, ShoppingBag, Check } from "lucide-react";
+import { ArrowRight, ArrowLeft, MessageCircle, ShoppingBag, Check } from "lucide-react";
 import { formatPrice, getWhatsAppLink } from "@/lib/utils";
 import type { Collection, QuizOption, Product } from "@/types";
 import SafeImage from "@/components/SafeImage";
@@ -131,12 +131,6 @@ export default function Quiz({
               exit={{ opacity: 0, y: -20 }}
               className="text-center"
             >
-              <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-6">
-                <Sparkles size={16} className="text-primary" />
-                <span className="text-primary text-sm font-medium">
-                  En 30 segundos
-                </span>
-              </div>
               <h2 className="text-4xl md:text-5xl font-bold text-brown-dark mb-4">
                 Encuentra tu{" "}
                 <span className="gradient-text">producto ideal</span>
