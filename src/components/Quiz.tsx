@@ -102,6 +102,8 @@ export default function Quiz({
       )
     : null;
 
+  const hasOptions = quizOptions.length > 0;
+
   const handleOptionClick = (optionId: string) => {
     setSelectedOption(optionId);
     setStep("results");
@@ -113,6 +115,14 @@ export default function Quiz({
       setSelectedOption(null);
     } else if (step === "choosing") {
       setStep("start");
+    }
+  };
+
+  const handleStart = () => {
+    if (hasOptions) {
+      setStep("choosing");
+    } else {
+      window.open(getWhatsAppLink(whatsappNumber, "Hola! Quiero que me ayuden a encontrar el producto ideal para mí. ¿Me pueden asesorar?"), "_blank");
     }
   };
 
@@ -140,7 +150,7 @@ export default function Quiz({
                 va contigo.
               </p>
               <button
-                onClick={() => setStep("choosing")}
+                onClick={handleStart}
                 className="group bg-primary hover:bg-primary-dark text-white px-10 py-4 rounded-full text-lg font-semibold transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary/20 inline-flex items-center gap-3"
               >
                 Empezar
