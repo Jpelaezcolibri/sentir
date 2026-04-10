@@ -23,13 +23,13 @@ export const metadata: Metadata = {
     siteName: "SENTIR",
     url: "https://sentir-nine.vercel.app",
     locale: "es_CO",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "SENTIR" }],
+    images: [{ url: "https://sentir-nine.vercel.app/opengraph-image", width: 1200, height: 630, alt: "SENTIR" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "SENTIR — Cada producto, una experiencia",
     description: "Descubre nuestra colección exclusiva. Compra fácil por WhatsApp.",
-    images: ["/opengraph-image"],
+    images: ["https://sentir-nine.vercel.app/opengraph-image"],
   },
 };
 
@@ -40,6 +40,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        {/* OG explícito para WhatsApp y otros scrapers */}
+        <meta property="og:image" content="https://sentir-nine.vercel.app/opengraph-image" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
       </head>
       <body className={`${geistSans.variable} antialiased`}>
         <CartProvider>{children}</CartProvider>
