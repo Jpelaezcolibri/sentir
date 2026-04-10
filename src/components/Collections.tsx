@@ -518,7 +518,7 @@ function CollectionModal({ collection, whatsappNumber, onClose }: { collection: 
               <div>
                 <h3 className="text-lg sm:text-2xl font-bold text-brown-dark">{collection.name}</h3>
                 <p className="text-xs sm:text-sm text-accent">
-                  {collection.products.length} productos
+                  {collection.products.length} productos · {collection.priceRange}
                 </p>
               </div>
             </div>
@@ -666,7 +666,8 @@ function CollectionCard({ collection, onClick, index }: { collection: Collection
         </div>
         <h3 className="text-lg sm:text-xl font-bold text-white mb-1">{collection.name}</h3>
         <p className="text-white/65 text-xs line-clamp-2 font-light mb-3">{collection.shortDescription}</p>
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-between">
+          <span className="text-primary-light font-bold text-sm">{collection.priceRange}</span>
           <span className="text-white/70 text-xs flex items-center gap-1 group-hover:text-white transition-colors">
             Ver más <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
           </span>
