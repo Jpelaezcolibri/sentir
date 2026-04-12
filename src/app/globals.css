@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  /* SENTIR — Paleta Teal/Mint inspirada en el logo */
-  --background: #F4FAFA;
-  --foreground: #1A3835;
+  /* SENTIR — Paleta editorial sobria */
+  --background: #FFFFFF;
+  --foreground: #111111;
   --primary: #4AADA3;
   --primary-light: #8ED4CF;
   --primary-dark: #2E8077;
   --secondary: #7EC8A0;
   --secondary-light: #B5E0CA;
-  --accent: #5E9E95;
-  --cream: #F4FAFA;
-  --cream-dark: #E2F0EE;
+  --accent: #555555;
+  --cream: #FAF9F7;
+  --cream-dark: #F0EDEA;
   --gold: #7EC8A0;
   --gold-light: #B5E0CA;
   --rose: #4AADA3;
   --rose-light: #C8E9E6;
-  --brown: #5E9E95;
-  --brown-dark: #1A3835;
+  --brown: #888888;
+  --brown-dark: #111111;
 }
 
 @theme inline {
@@ -49,16 +49,16 @@ html {
 }
 
 body {
-  background: var(--background, #F4FAFA);
-  color: var(--foreground, #1A3835);
+  background: var(--background, #FFFFFF);
+  color: var(--foreground, #111111);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
 }
 
-::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--cream-dark); }
-::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #CCCCCC; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 @keyframes float {
@@ -99,25 +99,22 @@ body {
 .wa-pulse { animation: wa-pulse 2s infinite; }
 
 .glass {
-  background: rgba(244, 250, 250, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(74, 173, 163, 0.15);
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .product-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(74, 173, 163, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary);
 }
 
 @supports (-webkit-touch-callout: none) {

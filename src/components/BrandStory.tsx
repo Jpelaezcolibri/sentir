@@ -23,55 +23,49 @@ const pillars = [
 
 export default function BrandStory() {
   return (
-    <section id="marca" className="py-24 md:py-32 bg-white relative overflow-hidden">
-      {/* Subtle background decoration */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
+    <section id="marca" className="py-24 md:py-32 bg-white border-t border-black/5">
+      <div className="max-w-6xl mx-auto px-6">
 
-      <div className="max-w-6xl mx-auto px-4">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          transition={{ duration: 0.6 }}
+          className="mb-20"
         >
-          <span className="text-primary text-xs font-bold tracking-[0.3em] uppercase">Nuestra historia</span>
-          <h2 className="text-4xl md:text-5xl font-bold text-brown-dark mt-4 mb-6">
-            Por qué existe <span className="gradient-text">SENTIR</span>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="h-px w-10 bg-primary" />
+            <span className="text-primary text-[10px] font-semibold tracking-[0.35em] uppercase">Nuestra historia</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-light text-foreground tracking-tight mb-6 max-w-xl">
+            Por qué existe <span className="font-semibold text-primary">SENTIR</span>
           </h2>
-          <p className="text-lg md:text-xl text-accent max-w-2xl mx-auto leading-relaxed font-light">
+          <p className="text-lg text-accent max-w-2xl leading-relaxed font-light">
             Creemos que cada producto debe tener alma. Que lo que usas en tu cuerpo,
             en tu hogar, para las personas que amas — merece ser escogido con cuidado.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+        {/* Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-black/5">
           {pillars.map((pillar, index) => (
             <motion.div
               key={pillar.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.15 }}
-              className="group text-center p-8 md:p-10 rounded-3xl hover:bg-cream transition-all duration-300"
+              transition={{ delay: index * 0.12, duration: 0.6 }}
+              className="bg-white p-10 md:p-12 group hover:bg-cream transition-colors duration-300"
             >
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center mx-auto mb-7 group-hover:scale-110 transition-transform duration-300">
-                <pillar.icon size={26} className="text-primary" />
+              <div className="w-10 h-10 flex items-center justify-center mb-8 border border-primary/30 group-hover:border-primary group-hover:bg-primary/5 transition-all">
+                <pillar.icon size={18} className="text-primary" />
               </div>
-              <h3 className="text-xl font-bold text-brown-dark mb-4">{pillar.title}</h3>
+              <h3 className="text-base font-semibold text-foreground mb-4 tracking-wide">{pillar.title}</h3>
               <p className="text-accent leading-relaxed text-sm font-light">{pillar.text}</p>
             </motion.div>
           ))}
         </div>
-
-        {/* Divider */}
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true }}
-          className="mt-20 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"
-        />
       </div>
     </section>
   );

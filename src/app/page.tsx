@@ -14,6 +14,8 @@ import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CartDrawer from "@/components/CartDrawer";
+import FirstPurchaseBanner from "@/components/FirstPurchaseBanner";
+import EditorialBanner from "@/components/EditorialBanner";
 
 export default async function Home() {
   const [collections, quizOptions, testimonials, bundlesData, settings, entregaInmediataProducts] = await Promise.all([
@@ -31,28 +33,39 @@ export default async function Home() {
       <Navigation collections={collections} whatsappNumber={settings.whatsapp_number} />
       <CartDrawer whatsappNumber={settings.whatsapp_number} />
 
-      {/* 1. Hero — bienvenida emocional */}
+      {/* 1. Hero — bienvenida editorial */}
       <Hero whatsappNumber={settings.whatsapp_number} />
 
-      {/* 2. Historia de marca — por qué existe SENTIR */}
+      {/* 2. Banner de primera compra */}
+      <FirstPurchaseBanner whatsappNumber={settings.whatsapp_number} />
+
+      {/* 3. Historia de marca */}
       <BrandStory />
 
-      {/* 3. Colecciones — explorar el catálogo */}
+      {/* 4. Colecciones */}
       <Collections collections={collections} whatsappNumber={settings.whatsapp_number} />
 
-      {/* 4. Quiz — encontrar el producto ideal */}
-      <Quiz quizOptions={quizOptions} collections={collections} whatsappNumber={settings.whatsapp_number} />
+      {/* 6. Quiz — oculto temporalmente */}
 
-      {/* 5. Stock disponible — entrega inmediata */}
-      <EntregaInmediata products={entregaInmediataProducts} whatsappNumber={settings.whatsapp_number} />
+      {/* 7. Stock disponible — oculto temporalmente */}
 
-      {/* 6. Filosofía SENTIR — por qué elegirnos */}
+      {/* 8. Banner editorial — Por qué SENTIR */}
+      <EditorialBanner
+        eyebrow="Filosofía SENTIR"
+        headline="Productos que despiertan los sentidos."
+        subline="Ingredientes naturales, procesos conscientes, entrega a tu puerta en todo Colombia."
+        cta="Conocernos"
+        href="#por-que-nosotros"
+        variant="accent"
+      />
+
+      {/* 9. Por qué elegirnos */}
       <WhyUs />
 
-      {/* 7. Combos especiales */}
+      {/* 10. Combos especiales */}
       <Bundles bundles={bundlesData} whatsappNumber={settings.whatsapp_number} />
 
-      {/* 8. Testimonios — voces reales */}
+      {/* 11. Testimonios */}
       <Testimonials testimonials={testimonials} />
 
       {/* Footer */}

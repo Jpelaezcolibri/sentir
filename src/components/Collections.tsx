@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice, getWhatsAppLink } from "@/lib/utils";
 import type { Collection, Product } from "@/types";
-import { X, MessageCircle, ChevronRight, Check, ShoppingBag, Zap, Eye, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
+import { X, MessageCircle, ChevronRight, Check, ShoppingBag, Zap, Eye, ChevronLeft, ChevronRight as ChevronRightIcon, Heart } from "lucide-react";
+import { useWishlist } from "@/context/WishlistContext";
 import SafeImage from "@/components/SafeImage";
 import { useCart } from "@/context/CartContext";
 
@@ -29,18 +30,18 @@ function ProductBadges({ product }: { product: Product }) {
   return (
     <>
       {product.isNew && (
-        <span className="absolute top-2 left-2 bg-primary text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full z-10">
-          NUEVO
+        <span className="absolute top-2 left-2 bg-primary text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 z-10 tracking-widest">
+          RECIÉN LLEGADA
         </span>
       )}
       {product.isPersonalizable && !product.isNew && (
-        <span className="absolute top-2 right-2 bg-secondary text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full z-10">
-          PERSONAL.
+        <span className="absolute top-2 right-2 bg-primary text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 z-10 tracking-widest">
+          LA HACEMOS TUYA
         </span>
       )}
       {product.isEntregaInmediata && (
-        <span className="absolute bottom-2 right-2 bg-emerald-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full z-10 flex items-center gap-0.5">
-          <Zap size={10} /> STOCK
+        <span className="absolute bottom-2 right-2 bg-primary text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 z-10 flex items-center gap-0.5 tracking-widest">
+          <Zap size={10} /> DISPONIBLE HOY
         </span>
       )}
     </>
@@ -183,6 +184,9 @@ function ProductCard({ product, collectionName, index, onQuickView }: {
   index: number;
   onQuickView: (product: Product) => void;
 }) {
+  const { toggle, isWished } = useWishlist();
+  const wished = isWished(product.id);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -209,6 +213,18 @@ function ProductCard({ product, collectionName, index, onQuickView }: {
           </div>
         )}
         <ProductBadges product={product} />
+        {/* Wishlist heart */}
+        <button
+          onClick={(e) => { e.stopPropagation(); toggle(product.id); }}
+          className="absolute top-2 right-2 z-20 w-8 h-8 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+          aria-label={wished ? "Quitar de favoritos" : "Agregar a favoritos"}
+        >
+          <Heart
+            size={14}
+            className={wished ? "text-rose-500 fill-rose-500" : "text-foreground/50"}
+            fill={wished ? "currentColor" : "none"}
+          />
+        </button>
         {/* Quick view overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center">
           <span className="opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 bg-white text-brown-dark text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
@@ -217,12 +233,14 @@ function ProductCard({ product, collectionName, index, onQuickView }: {
         </div>
       </div>
       <div className="p-2.5 sm:p-3">
-        <h4 className="font-semibold text-brown-dark text-xs sm:text-sm truncate">{product.name}</h4>
+        <h4 className="font-medium text-foreground text-xs sm:text-sm truncate tracking-wide">{product.name}</h4>
         {product.story && (
-          <p className="text-[10px] sm:text-xs text-accent mt-0.5 line-clamp-1 italic">{product.story}</p>
+          <p className="text-[10px] sm:text-xs text-primary mt-0.5 line-clamp-1 italic font-light">
+            "{product.story}"
+          </p>
         )}
         <div className="flex items-center justify-between mt-2">
-          <span className="text-primary font-bold text-xs sm:text-sm">{formatPrice(product.price)}</span>
+          <span className="text-foreground font-semibold text-xs sm:text-sm">{formatPrice(product.price)}</span>
           <AddToCartButton product={product} collectionName={collectionName} />
         </div>
       </div>
@@ -374,26 +392,32 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
           {/* Info */}
           <div className="md:w-[52%] p-5 md:p-6 flex flex-col gap-3">
             <div>
-              <span className="text-[10px] text-primary font-bold uppercase tracking-[0.2em]">{collectionName}</span>
-              <h2 className="text-xl md:text-2xl font-bold text-brown-dark mt-1 leading-tight">{product.name}</h2>
-              <p className="text-2xl font-bold text-primary mt-2">{formatPrice(product.price)}</p>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-px w-6 bg-primary" />
+                <span className="text-[10px] text-primary font-semibold uppercase tracking-[0.3em]">{collectionName}</span>
+              </div>
+              <h2 className="text-xl md:text-2xl font-light text-foreground mt-1 leading-tight tracking-wide">{product.name}</h2>
+              <p className="text-xl font-semibold text-primary mt-2">{formatPrice(product.price)}</p>
             </div>
 
             {product.story && (
-              <p className="text-sm text-accent leading-relaxed border-t border-cream-dark pt-3">{product.story}</p>
+              <div className="border-l-2 border-primary/40 pl-4 py-1">
+                <p className="text-[10px] text-primary/60 font-semibold tracking-[0.25em] uppercase mb-1">Lo que sentirás</p>
+                <p className="text-sm text-accent leading-relaxed italic font-light">"{product.story}"</p>
+              </div>
             )}
 
             {product.fabric && (
               <div>
-                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide">Material</span>
-                <p className="text-sm text-accent mt-0.5">{product.fabric}</p>
+                <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.2em]">Hecha de</span>
+                <p className="text-sm text-accent mt-0.5 font-light">{product.fabric}</p>
               </div>
             )}
 
             {product.sizes.length > 0 && (
               <div>
-                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide block mb-2">
-                  {pickedSize ? `${pickedSize} — ${needsColor ? "Elige color" : "Confirmado"}` : "Elige tu talla"}
+                <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.2em] block mb-2">
+                  {pickedSize ? `${pickedSize} — ${needsColor ? "Elige tu color" : "Lista para llevártela"}` : "¿Cuál es tu talla?"}
                 </span>
                 {!pickedSize ? (
                   <div className="flex flex-wrap gap-1.5">
@@ -431,16 +455,16 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
 
             {pickedSize && colorOptions.length > 0 && (
               <div>
-                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide block mb-2">Colores</span>
+                <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.2em] block mb-2">¿Cómo la quieres sentir?</span>
                 <div className="flex flex-wrap gap-1.5">
                   {colorOptions.map((color) => (
                     <button
                       key={color}
                       onClick={() => setPickedColor(color)}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                      className={`px-3 py-1.5 text-xs font-semibold transition-all tracking-wide ${
                         pickedColor === color
-                          ? "bg-primary text-white border-primary"
-                          : "bg-cream text-brown-dark border border-cream-dark hover:bg-primary/10"
+                          ? "bg-primary text-white"
+                          : "bg-cream text-foreground border border-cream-dark hover:border-primary hover:text-primary"
                       }`}
                     >
                       {color}
@@ -452,33 +476,33 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
 
             {!pickedSize && colorOptions.length > 0 && (
               <div>
-                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-wide block mb-2">Colores</span>
-                <p className="text-sm text-accent">{colorOptions.join(" · ")}</p>
+                <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.2em] block mb-1">Disponible en</span>
+                <p className="text-sm text-accent font-light">{colorOptions.join(" · ")}</p>
               </div>
             )}
 
-            <div className="flex flex-col gap-2.5 mt-auto pt-3 border-t border-cream-dark">
+            <div className="flex flex-col gap-2.5 mt-auto pt-3 border-t border-black/8">
               {pickedSize ? (
                 <>
                   <button
                     onClick={handleAddToCart}
-                    className="flex items-center gap-1.5 justify-center bg-primary hover:bg-primary-dark text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-colors"
+                    className="flex items-center gap-2 justify-center bg-foreground text-white px-4 py-3 font-semibold text-xs tracking-[0.2em] uppercase hover:bg-primary transition-colors"
                   >
-                    <ShoppingBag size={16} />
-                    Agregar al carrito
+                    <ShoppingBag size={15} />
+                    La quiero — agregar
                   </button>
                   <a
-                    href={getWhatsAppLink(whatsappNumber, `Hola! Me interesa el producto *"${product.name}"* de la colección ${collectionName}. Opción: ${pickedSize}${pickedColor ? ` / ${pickedColor}` : ''}. Precio: ${formatPrice(product.price)}. ¿Está disponible?`)}
+                    href={getWhatsAppLink(whatsappNumber, `Hola! Quiero sentir *"${product.name}"* de la colección ${collectionName}. Talla: ${pickedSize}${pickedColor ? ` / Color: ${pickedColor}` : ''}. Precio: ${formatPrice(product.price)}. ¿Está disponible hoy?`)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 justify-center bg-[#25D366] text-white px-4 py-2.5 rounded-full font-semibold text-sm hover:bg-[#20BD5A] transition-colors"
+                    className="flex items-center gap-2 justify-center bg-[#25D366] text-white px-4 py-3 font-semibold text-xs tracking-[0.2em] uppercase hover:bg-[#20BD5A] transition-colors"
                   >
-                    <MessageCircle size={16} />
-                    Consultar por WhatsApp
+                    <MessageCircle size={15} />
+                    Preguntar por WhatsApp
                   </a>
                 </>
               ) : (
-                <p className="text-xs text-accent text-center py-2">Selecciona una talla para continuar</p>
+                <p className="text-xs text-accent/70 text-center py-2 italic">Elige tu talla para llevarla contigo hoy</p>
               )}
             </div>
           </div>
@@ -509,16 +533,18 @@ function CollectionModal({ collection, whatsappNumber, onClose }: { collection: 
           exit={{ y: "100%" }}
           transition={{ type: "spring", damping: 25 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative bg-cream rounded-t-3xl md:rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto"
+          className="relative bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto"
         >
+          {/* Línea de acento superior */}
+          <div className="h-[3px] bg-primary w-full" />
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-cream/90 backdrop-blur-md p-4 sm:p-6 border-b border-cream-dark flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl sm:text-3xl">{collection.icon}</span>
+          <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md p-4 sm:p-6 border-b border-black/5 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-px w-8 bg-primary" />
               <div>
-                <h3 className="text-lg sm:text-2xl font-bold text-brown-dark">{collection.name}</h3>
-                <p className="text-xs sm:text-sm text-accent">
-                  {collection.products.length} productos
+                <h3 className="text-lg sm:text-2xl font-light text-foreground tracking-wide">{collection.name}</h3>
+                <p className="text-[10px] sm:text-xs text-accent tracking-[0.2em] uppercase font-medium">
+                  {collection.products.length} piezas para sentir
                 </p>
               </div>
             </div>
@@ -528,13 +554,16 @@ function CollectionModal({ collection, whatsappNumber, onClose }: { collection: 
           </div>
 
           {/* Description */}
-          <div className="px-4 sm:px-6 py-4">
-            <p className="text-accent text-sm sm:text-base">{collection.description}</p>
+          <div className="px-4 sm:px-6 py-5 border-b border-black/5">
+            <p className="text-foreground/70 text-sm sm:text-base font-light leading-relaxed">{collection.description}</p>
             {collection.story && (
-              <p className="text-xs sm:text-sm text-primary/80 mt-2 italic">{collection.story}</p>
+              <div className="flex items-start gap-3 mt-4">
+                <div className="h-px w-6 bg-primary mt-2.5 flex-shrink-0" />
+                <p className="text-xs sm:text-sm text-primary/80 italic font-light leading-relaxed">"{collection.story}"</p>
+              </div>
             )}
-            <p className="text-[10px] text-accent/60 mt-3 flex items-center gap-1">
-              <Eye size={11} /> Toca una foto para ver el detalle del producto
+            <p className="text-[10px] text-foreground/30 mt-4 flex items-center gap-1.5 tracking-wide uppercase font-medium">
+              <Eye size={10} /> Toca una pieza para sentirla de cerca
             </p>
           </div>
 
@@ -554,15 +583,15 @@ function CollectionModal({ collection, whatsappNumber, onClose }: { collection: 
           {/* Footer CTA */}
           <div className="sticky bottom-0 bg-cream/90 backdrop-blur-md p-3 sm:p-4 border-t border-cream-dark flex flex-col sm:flex-row gap-3 justify-center items-center">
             <a
-              href={getWhatsAppLink(whatsappNumber, `Hola! Me interesa la colección "${collection.name}". Quiero más información.`)}
+              href={getWhatsAppLink(whatsappNumber, `Hola! Quiero sentir la colección "${collection.name}" — me gustaría saber más.`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-[#25D366] text-white px-5 sm:px-6 py-3 rounded-full font-semibold hover:bg-[#20BD5A] transition-colors text-sm sm:text-base w-full sm:w-auto justify-center"
+              className="flex items-center gap-2 bg-[#25D366] text-white px-5 sm:px-6 py-3 font-semibold hover:bg-[#20BD5A] transition-colors text-sm sm:text-base w-full sm:w-auto justify-center"
             >
               <MessageCircle size={18} />
-              Consultar por esta colección
+              Quiero sentir esta colección
             </a>
-            <span className="text-xs sm:text-sm text-accent">Respuesta en menos de 5 minutos</span>
+            <span className="text-xs sm:text-sm text-accent">Te respondemos en menos de 5 minutos</span>
           </div>
         </motion.div>
       </motion.div>
@@ -587,40 +616,46 @@ function FeaturedCard({ collection, onClick }: { collection: Collection; onClick
   const cover = getCollectionCover(collection);
   return (
     <motion.button
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
+      transition={{ duration: 0.7 }}
       onClick={onClick}
-      className="group relative w-full rounded-3xl overflow-hidden text-left"
-      style={{ aspectRatio: "16/7" }}
+      className="group relative w-full overflow-hidden text-left"
+      style={{ aspectRatio: "21/9" }}
     >
       <SafeImage
         src={cover}
         alt={collection.name}
         fill
         fallbackIconSize={48}
-        className="object-cover group-hover:scale-105 transition-transform duration-700"
+        className="object-cover group-hover:scale-103 transition-transform duration-1000"
         sizes="100vw"
       />
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-transparent" />
+      {/* Gradient overlay — más sutil, elegante */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/25 to-black/5" />
+
+      {/* Línea de acento */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary" />
 
       {/* Content */}
-      <div className="absolute inset-0 flex items-center">
-        <div className="px-8 sm:px-12 md:px-16 max-w-xl">
-          <span className="text-primary-light text-xs font-bold tracking-[0.25em] uppercase mb-3 block">
-            Colección destacada
-          </span>
-          <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 leading-tight">
-            <span className="mr-2">{collection.icon}</span>
+      <div className="absolute inset-0 flex items-end pb-10 sm:pb-14 md:pb-16">
+        <div className="px-8 sm:px-12 md:px-16 max-w-2xl w-full">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-px w-8 bg-primary" />
+            <span className="text-primary text-[10px] font-semibold tracking-[0.35em] uppercase">
+              La que no querrás quitarte
+            </span>
+          </div>
+          <h3 className="text-3xl sm:text-4xl md:text-[3.25rem] font-thin text-white mb-3 leading-tight tracking-wide">
             {collection.name}
           </h3>
-          <p className="text-white/80 text-sm sm:text-base mb-6 line-clamp-2 font-light">
-            {collection.shortDescription}
+          <p className="text-white/65 text-sm sm:text-base mb-8 line-clamp-2 font-light italic">
+            {collection.shortDescription || "Para cuando quieres sentirte completamente tú."}
           </p>
-          <span className="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-full font-semibold text-sm group-hover:bg-white/90 transition-colors">
-            Ver {collection.products.length} productos
-            <ChevronRight size={16} />
+          <span className="inline-flex items-center gap-3 border border-white/30 text-white px-7 py-3.5 text-xs font-semibold tracking-[0.2em] uppercase group-hover:border-primary group-hover:text-primary transition-all duration-300">
+            Sentirla ahora
+            <ChevronRight size={13} className="group-hover:translate-x-1 transition-transform" />
           </span>
         </div>
       </div>
@@ -634,43 +669,45 @@ function CollectionCard({ collection, onClick, index }: { collection: Collection
   const cover = getCollectionCover(collection);
   return (
     <motion.button
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
+      transition={{ delay: index * 0.08, duration: 0.6 }}
       onClick={onClick}
-      className="group relative rounded-2xl overflow-hidden text-left"
-      style={{ aspectRatio: "3/4" }}
+      className="group text-left"
     >
-      <SafeImage
-        src={cover}
-        alt={collection.name}
-        fill
-        fallbackIconSize={32}
-        className="object-cover group-hover:scale-110 transition-transform duration-700"
-        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-      />
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-
-      {/* Hover shimmer */}
-      <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
-
-      {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-5">
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-xl">{collection.icon}</span>
-          <span className="text-white/60 text-[10px] font-semibold tracking-widest uppercase">
-            {collection.products.length} productos
+      {/* Imagen cuadrada */}
+      <div className="relative aspect-square overflow-hidden mb-4 bg-cream-dark">
+        <SafeImage
+          src={cover}
+          alt={collection.name}
+          fill
+          fallbackIconSize={32}
+          className="object-cover group-hover:scale-105 transition-transform duration-700"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        />
+        {/* Overlay hover */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-500" />
+        {/* Badge de productos */}
+        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1">
+          <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-foreground/70">
+            {collection.products.length} momentos
           </span>
         </div>
-        <h3 className="text-lg sm:text-xl font-bold text-white mb-1">{collection.name}</h3>
-        <p className="text-white/65 text-xs line-clamp-2 font-light mb-3">{collection.shortDescription}</p>
-        <div className="flex items-center justify-end">
-          <span className="text-white/70 text-xs flex items-center gap-1 group-hover:text-white transition-colors">
-            Ver más <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
-          </span>
-        </div>
+      </div>
+
+      {/* Texto debajo */}
+      <div className="px-1">
+        <h3 className="text-base font-light text-foreground mb-1.5 tracking-wide group-hover:text-primary transition-colors">
+          {collection.name}
+        </h3>
+        <p className="text-xs text-accent font-light line-clamp-2 leading-relaxed mb-3">
+          {collection.shortDescription || "Para cuando quieres sentirte tú, hoy."}
+        </p>
+        <span className="text-[10px] tracking-[0.25em] uppercase text-foreground/35 group-hover:text-primary transition-colors flex items-center gap-1.5">
+          La quiero sentir
+          <ChevronRight size={10} className="group-hover:translate-x-1 transition-transform" />
+        </span>
       </div>
     </motion.button>
   );
@@ -697,33 +734,45 @@ export default function Collections({ collections, whatsappNumber }: { collectio
   const [featured, ...rest] = collections;
 
   return (
-    <section id="colecciones" className="py-20 sm:py-24 md:py-32 bg-cream">
-      <div className="max-w-7xl mx-auto px-4">
+    <section id="colecciones" className="py-20 sm:py-24 md:py-32 bg-white border-t border-black/5">
 
-        {/* Section header */}
+      {/* Header de sección */}
+      <div className="max-w-7xl mx-auto px-6 mb-12 sm:mb-16">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-12 sm:mb-16 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4"
+          transition={{ duration: 0.6 }}
+          className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6"
         >
           <div>
-            <span className="text-primary text-xs font-bold tracking-[0.25em] uppercase">Nuestros mundos</span>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-brown-dark mt-3 leading-tight">
-              Descubre tu <span className="gradient-text">colección</span>
+            <div className="flex items-center gap-4 mb-5">
+              <div className="h-px w-10 bg-primary" />
+              <span className="text-primary text-[10px] font-semibold tracking-[0.35em] uppercase">
+                Aquí y ahora
+              </span>
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-thin text-foreground leading-tight tracking-tight">
+              Viste lo que eres.<br />
+              <span className="font-semibold text-primary">Siente lo que quieres ser.</span>
             </h2>
           </div>
+          <p className="text-sm text-accent font-light max-w-xs leading-relaxed sm:text-right">
+            Cada pieza existe para un momento<br />que merece ser vivido.
+          </p>
         </motion.div>
+      </div>
 
-        {/* Featured collection */}
-        <div className="mb-6">
-          <FeaturedCard collection={featured} onClick={() => setSelectedCollection(featured)} />
-        </div>
+      {/* Featured collection — full width */}
+      <div className="mb-1">
+        <FeaturedCard collection={featured} onClick={() => setSelectedCollection(featured)} />
+      </div>
 
-        {/* Rest of collections grid */}
-        {rest.length > 0 && (
-          <div className={`grid gap-4 sm:gap-6 ${
-            rest.length === 1 ? "grid-cols-1" :
+      {/* Grid de colecciones — imagen arriba, texto abajo */}
+      {rest.length > 0 && (
+        <div className="max-w-7xl mx-auto px-6 pt-12 sm:pt-16">
+          <div className={`grid gap-x-6 gap-y-12 ${
+            rest.length === 1 ? "grid-cols-1 max-w-sm" :
             rest.length === 2 ? "grid-cols-2" :
             rest.length === 3 ? "grid-cols-2 sm:grid-cols-3" :
             "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
@@ -737,8 +786,8 @@ export default function Collections({ collections, whatsappNumber }: { collectio
               />
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <AnimatePresence>
         {selectedCollection && (

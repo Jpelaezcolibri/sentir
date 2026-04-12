@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ShoppingBag, Search, MessageCircle } from "lucide-react";
+import { Menu, X, ShoppingBag, Search, MessageCircle, Heart } from "lucide-react";
+import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 import SearchBar from "@/components/SearchBar";
 import type { Collection } from "@/types";
@@ -18,6 +19,7 @@ export default function Navigation({ collections = [], whatsappNumber = "" }: { 
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const { totalItems, toggleCart } = useCart();
+  const { count: wishCount } = useWishlist();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -94,6 +96,20 @@ export default function Navigation({ collections = [], whatsappNumber = "" }: { 
               )}
             </div>
           )}
+
+          {/* Wishlist */}
+          <button
+            className={`relative p-2 rounded-full transition-colors ${scrolled ? "text-brown-dark hover:bg-cream-dark" : "text-white hover:bg-white/10"}`}
+            title="Favoritos"
+            onClick={() => {}}
+          >
+            <Heart size={20} />
+            {wishCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                {wishCount}
+              </span>
+            )}
+          </button>
 
           {/* Cart */}
           <button
