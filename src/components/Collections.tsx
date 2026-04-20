@@ -39,11 +39,6 @@ function ProductBadges({ product }: { product: Product }) {
           LA HACEMOS TUYA
         </span>
       )}
-      {product.isEntregaInmediata && (
-        <span className="absolute bottom-2 right-2 bg-primary text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 z-10 flex items-center gap-0.5 tracking-widest">
-          <Zap size={10} /> DISPONIBLE HOY
-        </span>
-      )}
     </>
   );
 }

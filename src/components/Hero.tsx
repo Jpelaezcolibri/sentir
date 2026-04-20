@@ -54,7 +54,7 @@ export default function Hero({ whatsappNumber }: { whatsappNumber: string }) {
 
           {/* Tagline principal — tono medio */}
           <p className="text-sm font-light tracking-[0.2em] uppercase mb-2" style={{ color: MINT.mid }}>
-            Cada sensación tiene un producto.
+            Cada camisa cuenta tu sentir 💖
           </p>
 
           {/* Tagline secundario — tono claro */}
