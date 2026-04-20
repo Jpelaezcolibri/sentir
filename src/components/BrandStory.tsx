@@ -42,8 +42,7 @@ export default function BrandStory() {
             Por qué existe <span className="font-semibold text-primary">SENTIR</span>
           </h2>
           <p className="text-lg text-accent max-w-2xl leading-relaxed font-light">
-            Creemos que cada producto debe tener alma. Que lo que usas en tu cuerpo,
-            en tu hogar, para las personas que amas — merece ser escogido con cuidado.
+            Sentir es creer que cada detalle importa. Lo que llega a tu cuerpo, a tu espacio y a las personas que amas, merece ser elegido con amor y propósito.
           </p>
         </motion.div>
 
