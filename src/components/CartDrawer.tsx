@@ -123,6 +123,13 @@ export default function CartDrawer({ whatsappNumber }: { whatsappNumber: string 
       isAddon: true,
     }));
 
+  const getAppUrl = () => {
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+    return 'https://sentir-nine.vercel.app';
+  };
+
   const handlePreConfirm = () => {
     if (items.length === 0) return;
     if (nameIsEmpty) {
@@ -177,7 +184,8 @@ export default function CartDrawer({ whatsappNumber }: { whatsappNumber: string 
       }
 
       const orderTotalItems = totalItems + addonItems.length;
-      const fallbackMessage = getCartWhatsAppMessage(finalItems, finalTotal, undefined, trimmedName);
+      const appUrl = getAppUrl();
+      const fallbackMessage = getCartWhatsAppMessage(finalItems, finalTotal, undefined, trimmedName, appUrl);
       const fallbackUrl = getWhatsAppLink(whatsappNumber, fallbackMessage);
 
       try {
@@ -195,8 +203,8 @@ export default function CartDrawer({ whatsappNumber }: { whatsappNumber: string 
         let whatsappUrl = fallbackUrl;
         if (res.ok) {
           const data = await res.json();
-          const orderUrl = `${window.location.origin}/pedido/${data.id}`;
-          const message = getCartWhatsAppMessage(finalItems, finalTotal, orderUrl, trimmedName);
+          const orderUrl = `${appUrl}/pedido/${data.id}`;
+          const message = getCartWhatsAppMessage(finalItems, finalTotal, orderUrl, trimmedName, appUrl);
           whatsappUrl = getWhatsAppLink(whatsappNumber, message);
         }
 

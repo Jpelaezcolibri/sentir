@@ -40,13 +40,16 @@ export interface CartItemForMessage {
   price: number;
   isEntregaInmediata?: boolean;
   isAddon?: boolean;
+  image?: string;
+  productId?: string;
 }
 
 export function getCartWhatsAppMessage(
   items: CartItemForMessage[],
   total: number,
   orderUrl?: string,
-  customerName?: string
+  customerName?: string,
+  appUrl: string = 'https://sentir-nine.vercel.app'
 ): string {
   const productItems = items.filter((item) => !item.isAddon);
   const addonItems = items.filter((item) => item.isAddon);
@@ -54,7 +57,9 @@ export function getCartWhatsAppMessage(
 
   const lines = productItems.map((item, i) => {
     const colorDisplay = cleanColorForDisplay(item.color);
-    return `${i + 1}. ${item.isEntregaInmediata ? EMOJI_LIGHTNING + ' ' : ''}${item.name} - Talla ${item.size}${colorDisplay ? ` - Color ${colorDisplay}` : ''} x${item.quantity} - ${formatPrice(item.price * item.quantity)}`;
+    const productLink = item.productId ? `${appUrl}/producto/${item.productId}` : '';
+    const linkText = productLink ? ` 🔗 ${productLink}` : '';
+    return `${i + 1}. ${item.isEntregaInmediata ? EMOJI_LIGHTNING + ' ' : ''}${item.name} - Talla ${item.size}${colorDisplay ? ` - Color ${colorDisplay}` : ''} x${item.quantity} - ${formatPrice(item.price * item.quantity)}${linkText}`;
   });
 
   let msg = '';
@@ -78,7 +83,7 @@ export function getCartWhatsAppMessage(
 
   msg += `\n\nTOTAL: ${formatPrice(total)}`;
   if (orderUrl) {
-    msg += `\n\nVer pedido completo:\n${orderUrl}`;
+    msg += `\n\n📦 Ver pedido completo con fotos:\n${orderUrl}`;
   }
   msg += `\n\nQuedo atento/a a la confirmacion!`;
 
