@@ -15,6 +15,7 @@ const PLACEHOLDER = "/placeholder-product.svg";
 const COLOR_MAP: { [key: string]: { hex: string; isDark: boolean } } = {
   negro: { hex: "#1a1a1a", isDark: true },
   blanco: { hex: "#ffffff", isDark: false },
+  "blanco hueso": { hex: "#f5f1ed", isDark: false },
   crema: { hex: "#faf6f1", isDark: false },
   beige: { hex: "#d4c5b9", isDark: false },
   arena: { hex: "#c9b5a3", isDark: false },
@@ -29,11 +30,15 @@ const COLOR_MAP: { [key: string]: { hex: string; isDark: boolean } } = {
   "azul marino": { hex: "#001f3f", isDark: true },
   verde: { hex: "#2d5016", isDark: true },
   "verde oliva": { hex: "#556b2f", isDark: true },
+  "verde antioquia": { hex: "#4a7023", isDark: true },
   gris: { hex: "#808080", isDark: true },
   "gris claro": { hex: "#d3d3d3", isDark: false },
   amarillo: { hex: "#ffd700", isDark: false },
   oro: { hex: "#ffd700", isDark: false },
   naranja: { hex: "#ff8c00", isDark: false },
+  lila: { hex: "#c8a2c8", isDark: false },
+  purpura: { hex: "#800080", isDark: true },
+  morado: { hex: "#9370db", isDark: true },
   "segun disponibilidad": { hex: "#e0e0e0", isDark: false },
 };
 
