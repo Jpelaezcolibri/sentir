@@ -93,12 +93,22 @@ function AddToCartButton({ product, collectionName }: { product: Product; collec
   const colorOptions = (() => {
     if (!product.colors) return [];
     let raw: string[] = [];
-    const trimmed = product.colors.trim();
+    let trimmed = product.colors.trim();
+
+    // Limpiar brackets dobles [[...]]
+    while (trimmed.startsWith("[[") && trimmed.endsWith("]]")) {
+      trimmed = trimmed.slice(1, -1).trim();
+    }
+    while (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      trimmed = trimmed.slice(1, -1).trim();
+    }
+
     if (trimmed.startsWith("[")) {
-      try { raw = JSON.parse(trimmed); } catch { raw = [trimmed]; }
+      try { raw = JSON.parse(`[${trimmed}]`); } catch { raw = trimmed.split(",").map((c) => c.trim()); }
     } else {
       raw = trimmed.split(",").map((c) => c.trim());
     }
+
     return raw.filter((c) => {
       if (!c) return false;
       const norm = c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z ]/g, "").trim();
@@ -300,13 +310,23 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
 
   const colorOptions = (() => {
     if (!product.colors) return [];
-    const trimmed = product.colors.trim();
+    let trimmed = product.colors.trim();
+
+    // Limpiar brackets dobles [[...]]
+    while (trimmed.startsWith("[[") && trimmed.endsWith("]]")) {
+      trimmed = trimmed.slice(1, -1).trim();
+    }
+    while (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      trimmed = trimmed.slice(1, -1).trim();
+    }
+
     let raw: string[] = [];
     if (trimmed.startsWith("[")) {
-      try { raw = JSON.parse(trimmed); } catch { raw = [trimmed]; }
+      try { raw = JSON.parse(`[${trimmed}]`); } catch { raw = trimmed.split(",").map((c) => c.trim()); }
     } else {
       raw = trimmed.split(",").map((c) => c.trim());
     }
+
     return raw.filter((c) => {
       if (!c) return false;
       const norm = c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z ]/g, "").trim();
