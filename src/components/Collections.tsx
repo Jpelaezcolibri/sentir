@@ -12,6 +12,45 @@ import { useCart } from "@/context/CartContext";
 
 const PLACEHOLDER = "/placeholder-product.svg";
 
+const COLOR_MAP: { [key: string]: { hex: string; isDark: boolean } } = {
+  negro: { hex: "#1a1a1a", isDark: true },
+  blanco: { hex: "#ffffff", isDark: false },
+  crema: { hex: "#faf6f1", isDark: false },
+  beige: { hex: "#d4c5b9", isDark: false },
+  arena: { hex: "#c9b5a3", isDark: false },
+  nude: { hex: "#e8d4c4", isDark: false },
+  champagne: { hex: "#f5e6d3", isDark: false },
+  "palo de rosa": { hex: "#f5d5d9", isDark: false },
+  rosa: { hex: "#f5d5d9", isDark: false },
+  "rosa pastel": { hex: "#ffd4e5", isDark: false },
+  rojo: { hex: "#c41e3a", isDark: true },
+  "rojo vino": { hex: "#722f37", isDark: true },
+  azul: { hex: "#1e3a5f", isDark: true },
+  "azul marino": { hex: "#001f3f", isDark: true },
+  verde: { hex: "#2d5016", isDark: true },
+  "verde oliva": { hex: "#556b2f", isDark: true },
+  gris: { hex: "#808080", isDark: true },
+  "gris claro": { hex: "#d3d3d3", isDark: false },
+  amarillo: { hex: "#ffd700", isDark: false },
+  oro: { hex: "#ffd700", isDark: false },
+  naranja: { hex: "#ff8c00", isDark: false },
+  "segun disponibilidad": { hex: "#e0e0e0", isDark: false },
+};
+
+function getColorStyle(colorName: string): { bg: string; text: string } {
+  const normalizedName = colorName.toLowerCase().trim();
+  const colorInfo = COLOR_MAP[normalizedName];
+
+  if (colorInfo) {
+    return {
+      bg: colorInfo.hex,
+      text: colorInfo.isDark ? "#ffffff" : "#1a1a1a",
+    };
+  }
+
+  return { bg: "#f0f0f0", text: "#1a1a1a" };
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function getCollectionCover(collection: Collection): string {
@@ -452,19 +491,29 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
               <div>
                 <span className="text-[10px] font-bold text-brown-dark uppercase tracking-[0.2em] block mb-3">¿Cómo la quieres sentir?</span>
                 <div className="flex flex-wrap gap-2">
-                  {colorOptions.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setPickedColor(color)}
-                      className={`px-4 py-2 text-xs font-bold rounded-lg transition-all border-2 tracking-wide ${
-                        pickedColor === color
-                          ? "bg-primary text-white border-primary shadow-md scale-105"
-                          : "bg-white text-brown-dark border-primary/30 hover:border-primary hover:bg-primary/5"
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
+                  {colorOptions.map((color) => {
+                    const colorStyle = getColorStyle(color);
+                    return (
+                      <button
+                        key={color}
+                        onClick={() => setPickedColor(color)}
+                        className={`px-5 py-2.5 text-xs font-bold rounded-lg transition-all border-3 tracking-wide ${
+                          pickedColor === color
+                            ? "shadow-lg scale-110 border-black/30"
+                            : "border-transparent hover:shadow-md hover:scale-105"
+                        }`}
+                        style={{
+                          backgroundColor: colorStyle.bg,
+                          color: colorStyle.text,
+                          ...(pickedColor === color && {
+                            boxShadow: `0 0 0 3px ${colorStyle.bg}20`,
+                          }),
+                        }}
+                      >
+                        {color}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
