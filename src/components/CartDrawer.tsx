@@ -201,14 +201,38 @@ export default function CartDrawer({ whatsappNumber }: { whatsappNumber: string 
         });
 
         let whatsappUrl = fallbackUrl;
+        let previewUrl: string | null = null;
+
         if (res.ok) {
           const data = await res.json();
           const orderUrl = `${appUrl}/pedido/${data.id}`;
           const message = getCartWhatsAppMessage(finalItems, finalTotal, orderUrl, trimmedName, appUrl);
           whatsappUrl = getWhatsAppLink(whatsappNumber, message);
+          previewUrl = `${appUrl}/api/orders/preview`;
         }
 
-        window.location.href = whatsappUrl;
+        if (previewUrl) {
+          const previewRes = await fetch(previewUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: finalItems,
+              total: finalTotal,
+              customerName: trimmedName,
+            }),
+          });
+
+          if (previewRes.ok) {
+            const previewHtml = await previewRes.text();
+            const previewBlob = new Blob([previewHtml], { type: 'text/html' });
+            const previewURL = URL.createObjectURL(previewBlob);
+            window.open(previewURL, '_blank', 'width=800,height=900');
+          }
+        }
+
+        setTimeout(() => {
+          window.location.href = whatsappUrl;
+        }, 1000);
         clearCart();
         closeCart();
         setSelectedAddons(new Set());
