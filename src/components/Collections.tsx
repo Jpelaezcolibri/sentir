@@ -389,33 +389,33 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-px w-6 bg-primary" />
-                <span className="text-[10px] text-primary font-semibold uppercase tracking-[0.3em]">{collectionName}</span>
+                <span className="text-[10px] text-primary font-bold uppercase tracking-[0.3em]">{collectionName}</span>
               </div>
-              <h2 className="text-xl md:text-2xl font-light text-foreground mt-1 leading-tight tracking-wide">{product.name}</h2>
-              <p className="text-xl font-semibold text-primary mt-2">{formatPrice(product.price)}</p>
+              <h2 className="text-xl md:text-2xl font-semibold text-brown-dark mt-1 leading-tight tracking-wide">{product.name}</h2>
+              <p className="text-2xl font-bold text-primary mt-2">{formatPrice(product.price)}</p>
             </div>
 
             {product.story && (
-              <div className="border-l-2 border-primary/40 pl-4 py-1">
-                <p className="text-[10px] text-primary/60 font-semibold tracking-[0.25em] uppercase mb-1">Lo que sentirás</p>
-                <p className="text-sm text-accent leading-relaxed italic font-light">"{product.story}"</p>
+              <div className="border-l-2 border-primary pl-4 py-1">
+                <p className="text-[10px] text-primary font-bold tracking-[0.25em] uppercase mb-1">Lo que sentirás</p>
+                <p className="text-sm text-brown-dark leading-relaxed italic font-light">"{product.story}"</p>
               </div>
             )}
 
             {product.fabric && (
               <div>
-                <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.2em]">Hecha de</span>
+                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-[0.2em]">Hecha de</span>
                 <p className="text-sm text-accent mt-0.5 font-light">{product.fabric}</p>
               </div>
             )}
 
             {product.sizes.length > 0 && (
               <div>
-                <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.2em] block mb-2">
+                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-[0.2em] block mb-3">
                   {pickedSize ? `${pickedSize} — ${needsColor ? "Elige tu color" : "Lista para llevártela"}` : "¿Cuál es tu talla?"}
                 </span>
                 {!pickedSize ? (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size) => (
                       <button
                         key={size}
@@ -423,7 +423,7 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
                           setPickedSize(size);
                           if (!needsColor) setPickedColor(null);
                         }}
-                        className="px-3 py-1.5 text-xs font-bold rounded-lg bg-cream hover:bg-primary hover:text-white text-brown-dark border border-cream-dark hover:border-primary transition-all"
+                        className="px-4 py-2 text-xs font-bold rounded-lg bg-white text-brown-dark border-2 border-primary/30 hover:bg-primary hover:text-white hover:border-primary transition-all"
                       >
                         {size}
                       </button>
@@ -431,7 +431,7 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1.5 text-xs font-bold rounded-lg bg-primary text-white">
+                    <span className="px-4 py-2 text-xs font-bold rounded-lg bg-primary text-white border-2 border-primary">
                       {pickedSize}
                     </span>
                     <button
@@ -439,7 +439,7 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
                         setPickedSize(null);
                         setPickedColor(null);
                       }}
-                      className="text-[10px] text-primary hover:underline"
+                      className="text-[10px] text-primary font-semibold hover:underline"
                     >
                       Cambiar
                     </button>
@@ -450,16 +450,16 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
 
             {pickedSize && colorOptions.length > 0 && (
               <div>
-                <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.2em] block mb-2">¿Cómo la quieres sentir?</span>
-                <div className="flex flex-wrap gap-1.5">
+                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-[0.2em] block mb-3">¿Cómo la quieres sentir?</span>
+                <div className="flex flex-wrap gap-2">
                   {colorOptions.map((color) => (
                     <button
                       key={color}
                       onClick={() => setPickedColor(color)}
-                      className={`px-3 py-1.5 text-xs font-semibold transition-all tracking-wide ${
+                      className={`px-4 py-2 text-xs font-bold rounded-lg transition-all border-2 tracking-wide ${
                         pickedColor === color
-                          ? "bg-primary text-white"
-                          : "bg-cream text-foreground border border-cream-dark hover:border-primary hover:text-primary"
+                          ? "bg-primary text-white border-primary shadow-md scale-105"
+                          : "bg-white text-brown-dark border-primary/30 hover:border-primary hover:bg-primary/5"
                       }`}
                     >
                       {color}
