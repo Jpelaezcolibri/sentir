@@ -520,8 +520,24 @@ function ProductQuickView({ product, collectionName, whatsappNumber, onClose }: 
 
             {!pickedSize && colorOptions.length > 0 && (
               <div>
-                <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.2em] block mb-1">Disponible en</span>
-                <p className="text-sm text-accent font-light">{colorOptions.join(" · ")}</p>
+                <span className="text-[10px] font-bold text-brown-dark uppercase tracking-[0.2em] block mb-2">Disponible en</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {colorOptions.map((color) => {
+                    const colorStyle = getColorStyle(color);
+                    return (
+                      <span
+                        key={color}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-black/10"
+                        style={{
+                          backgroundColor: colorStyle.bg,
+                          color: colorStyle.text,
+                        }}
+                      >
+                        {color}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
