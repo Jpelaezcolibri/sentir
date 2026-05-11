@@ -13,6 +13,7 @@ export interface CartItem {
   collectionName: string;
   quantity: number;
   isEntregaInmediata?: boolean;
+  isAddon?: boolean;
 }
 
 interface CartState { items: CartItem[]; isOpen: boolean; }
@@ -68,13 +69,43 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, { items: [], isOpen: false });
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) dispatch({ type: "LOAD_CART", payload: parsed });
-      }
-    } catch { /* ignore */ }
+    const loadCart = async () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            try {
+              const validateRes = await fetch('/api/products/validate-prices', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: parsed }),
+              });
+
+              if (validateRes.ok) {
+                const validation = await validateRes.json();
+                if (validation.hasChanges) {
+                  const priceMap = new Map(
+                    validation.validatedItems.map((item: any) => [item.productId, item.currentPrice])
+                  );
+                  const updatedItems = parsed.map((item: any) => {
+                    const newPrice = priceMap.get(item.productId);
+                    return newPrice !== undefined ? { ...item, price: newPrice } : item;
+                  });
+                  dispatch({ type: "LOAD_CART", payload: updatedItems });
+                  return;
+                }
+              }
+            } catch {
+              // If validation fails, proceed with loaded cart
+            }
+            dispatch({ type: "LOAD_CART", payload: parsed });
+          }
+        }
+      } catch { /* ignore */ }
+    };
+
+    loadCart();
   }, []);
 
   useEffect(() => {

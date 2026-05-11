@@ -139,43 +139,80 @@ export default function CartDrawer({ whatsappNumber }: { whatsappNumber: string 
     const trimmedName = customerName.trim() || undefined;
     const addonItems = includeAddons ? buildAddonItems() : [];
     const allItems = [...items, ...addonItems];
-    const orderTotal = total + (includeAddons ? addonsTotal : 0);
-    const orderTotalItems = totalItems + addonItems.length;
-
-    const fallbackMessage = getCartWhatsAppMessage(allItems, orderTotal, undefined, trimmedName);
-    const fallbackUrl = getWhatsAppLink(whatsappNumber, fallbackMessage);
 
     try {
-      const res = await fetch('/api/orders', {
+      const validationRes = await fetch('/api/products/validate-prices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: allItems,
-          total: orderTotal,
-          totalItems: orderTotalItems,
-          customerName: trimmedName,
-        }),
+        body: JSON.stringify({ items: items }),
       });
 
-      let whatsappUrl = fallbackUrl;
-      if (res.ok) {
-        const data = await res.json();
-        const orderUrl = `${window.location.origin}/pedido/${data.id}`;
-        const message = getCartWhatsAppMessage(allItems, orderTotal, orderUrl, trimmedName);
-        whatsappUrl = getWhatsAppLink(whatsappNumber, message);
+      if (!validationRes.ok) throw new Error('Price validation failed');
+      const validation = await validationRes.json();
+
+      let finalItems = allItems;
+      let finalTotal = total + (includeAddons ? addonsTotal : 0);
+
+      if (validation.hasChanges) {
+        const priceUpdates = new Map(
+          validation.validatedItems.map((item: any) => [item.productId, item.currentPrice])
+        );
+
+        finalItems = allItems.map((item) => {
+          if (item.isAddon) return item;
+          const newPrice = priceUpdates.get(item.productId);
+          if (newPrice !== undefined && typeof newPrice === 'number') {
+            return { ...item, price: newPrice };
+          }
+          return item;
+        });
+
+        const productItemsTotal = finalItems
+          .filter((i) => !i.isAddon)
+          .reduce((sum, i) => sum + i.price * i.quantity, 0);
+        const addonItemsTotal = finalItems
+          .filter((i) => i.isAddon)
+          .reduce((sum, i) => sum + i.price * i.quantity, 0);
+        finalTotal = productItemsTotal + addonItemsTotal;
       }
 
-      window.location.href = whatsappUrl;
-      clearCart();
-      closeCart();
-      setSelectedAddons(new Set());
-    } catch {
-      window.location.href = fallbackUrl;
-      clearCart();
-      closeCart();
-      setSelectedAddons(new Set());
-    } finally {
+      const orderTotalItems = totalItems + addonItems.length;
+      const fallbackMessage = getCartWhatsAppMessage(finalItems, finalTotal, undefined, trimmedName);
+      const fallbackUrl = getWhatsAppLink(whatsappNumber, fallbackMessage);
+
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: finalItems,
+            total: finalTotal,
+            totalItems: orderTotalItems,
+            customerName: trimmedName,
+          }),
+        });
+
+        let whatsappUrl = fallbackUrl;
+        if (res.ok) {
+          const data = await res.json();
+          const orderUrl = `${window.location.origin}/pedido/${data.id}`;
+          const message = getCartWhatsAppMessage(finalItems, finalTotal, orderUrl, trimmedName);
+          whatsappUrl = getWhatsAppLink(whatsappNumber, message);
+        }
+
+        window.location.href = whatsappUrl;
+        clearCart();
+        closeCart();
+        setSelectedAddons(new Set());
+      } catch {
+        window.location.href = fallbackUrl;
+        clearCart();
+        closeCart();
+        setSelectedAddons(new Set());
+      }
+    } catch (error) {
       setSending(false);
+      console.error('Error validating prices:', error);
     }
   };
 
